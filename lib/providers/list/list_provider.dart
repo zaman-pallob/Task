@@ -25,11 +25,12 @@ class ListProvider extends ChangeNotifier implements ListInterface {
   @override
   void onDataAdd(TodoItem item) {
     items.insert(0, item);
-    changeState(true);
+    changeState(false);
   }
 
   @override
   void onDataDelete(String id) {
+    items.removeWhere((element) => element.id == id);
     changeState(false);
   }
 

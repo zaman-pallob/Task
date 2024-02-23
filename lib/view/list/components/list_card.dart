@@ -39,11 +39,16 @@ class ListCard extends StatelessWidget {
                   ],
                 ),
               ),
-              Container(
-                width: 35.w,
-                height: 35.h,
-                child: Icon(Icons.delete_forever_outlined,
-                    size: 30.h, color: AppColors.lightred),
+              InkWell(
+                onTap: () {
+                  onDelete();
+                },
+                child: Container(
+                  width: 35.w,
+                  height: 35.h,
+                  child: Icon(Icons.delete_forever_outlined,
+                      size: 30.h, color: AppColors.lightred),
+                ),
               )
             ],
           ),
