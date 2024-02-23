@@ -8,6 +8,11 @@ class $TodoTable extends Todo with TableInfo<$TodoTable, TodoModel> {
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $TodoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -25,7 +30,7 @@ class $TodoTable extends Todo with TableInfo<$TodoTable, TodoModel> {
       'numbers', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [name, age, numbers];
+  List<GeneratedColumn> get $columns => [id, name, age, numbers];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -36,6 +41,11 @@ class $TodoTable extends Todo with TableInfo<$TodoTable, TodoModel> {
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
     if (data.containsKey('name')) {
       context.handle(
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
@@ -63,6 +73,8 @@ class $TodoTable extends Todo with TableInfo<$TodoTable, TodoModel> {
   TodoModel map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return TodoModel(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       age: attachedDatabase.typeMapping
@@ -79,14 +91,19 @@ class $TodoTable extends Todo with TableInfo<$TodoTable, TodoModel> {
 }
 
 class TodoModel extends DataClass implements Insertable<TodoModel> {
+  final String id;
   final String name;
   final int age;
   final String numbers;
   const TodoModel(
-      {required this.name, required this.age, required this.numbers});
+      {required this.id,
+      required this.name,
+      required this.age,
+      required this.numbers});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
     map['name'] = Variable<String>(name);
     map['age'] = Variable<int>(age);
     map['numbers'] = Variable<String>(numbers);
@@ -95,6 +112,7 @@ class TodoModel extends DataClass implements Insertable<TodoModel> {
 
   TodoCompanion toCompanion(bool nullToAbsent) {
     return TodoCompanion(
+      id: Value(id),
       name: Value(name),
       age: Value(age),
       numbers: Value(numbers),
@@ -105,6 +123,7 @@ class TodoModel extends DataClass implements Insertable<TodoModel> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TodoModel(
+      id: serializer.fromJson<String>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       age: serializer.fromJson<int>(json['age']),
       numbers: serializer.fromJson<String>(json['numbers']),
@@ -114,13 +133,16 @@ class TodoModel extends DataClass implements Insertable<TodoModel> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
       'name': serializer.toJson<String>(name),
       'age': serializer.toJson<int>(age),
       'numbers': serializer.toJson<String>(numbers),
     };
   }
 
-  TodoModel copyWith({String? name, int? age, String? numbers}) => TodoModel(
+  TodoModel copyWith({String? id, String? name, int? age, String? numbers}) =>
+      TodoModel(
+        id: id ?? this.id,
         name: name ?? this.name,
         age: age ?? this.age,
         numbers: numbers ?? this.numbers,
@@ -128,6 +150,7 @@ class TodoModel extends DataClass implements Insertable<TodoModel> {
   @override
   String toString() {
     return (StringBuffer('TodoModel(')
+          ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('age: $age, ')
           ..write('numbers: $numbers')
@@ -136,42 +159,49 @@ class TodoModel extends DataClass implements Insertable<TodoModel> {
   }
 
   @override
-  int get hashCode => Object.hash(name, age, numbers);
+  int get hashCode => Object.hash(id, name, age, numbers);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TodoModel &&
+          other.id == this.id &&
           other.name == this.name &&
           other.age == this.age &&
           other.numbers == this.numbers);
 }
 
 class TodoCompanion extends UpdateCompanion<TodoModel> {
+  final Value<String> id;
   final Value<String> name;
   final Value<int> age;
   final Value<String> numbers;
   final Value<int> rowid;
   const TodoCompanion({
+    this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.age = const Value.absent(),
     this.numbers = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TodoCompanion.insert({
+    required String id,
     required String name,
     required int age,
     required String numbers,
     this.rowid = const Value.absent(),
-  })  : name = Value(name),
+  })  : id = Value(id),
+        name = Value(name),
         age = Value(age),
         numbers = Value(numbers);
   static Insertable<TodoModel> custom({
+    Expression<String>? id,
     Expression<String>? name,
     Expression<int>? age,
     Expression<String>? numbers,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
+      if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (age != null) 'age': age,
       if (numbers != null) 'numbers': numbers,
@@ -180,11 +210,13 @@ class TodoCompanion extends UpdateCompanion<TodoModel> {
   }
 
   TodoCompanion copyWith(
-      {Value<String>? name,
+      {Value<String>? id,
+      Value<String>? name,
       Value<int>? age,
       Value<String>? numbers,
       Value<int>? rowid}) {
     return TodoCompanion(
+      id: id ?? this.id,
       name: name ?? this.name,
       age: age ?? this.age,
       numbers: numbers ?? this.numbers,
@@ -195,6 +227,9 @@ class TodoCompanion extends UpdateCompanion<TodoModel> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
@@ -213,6 +248,7 @@ class TodoCompanion extends UpdateCompanion<TodoModel> {
   @override
   String toString() {
     return (StringBuffer('TodoCompanion(')
+          ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('age: $age, ')
           ..write('numbers: $numbers, ')

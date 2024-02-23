@@ -1,6 +1,8 @@
 // ignore_for_file: unused_local_variable
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:task/providers/list/list_provider.dart';
 import 'package:task/view/home/home_window.dart';
 import 'package:task/view/list/my_list.dart';
 import 'package:task/view/map/my_map.dart';
@@ -16,7 +18,8 @@ class CustomRouter {
         return routeBuilder(HomeWindow());
 
       case AppRoutes.mylist:
-        return routeBuilder(MyList());
+        return routeBuilder(ChangeNotifierProvider(
+            create: (context) => ListProvider(), child: MyList()));
 
       case AppRoutes.mymap:
         return routeBuilder(MyMap());
