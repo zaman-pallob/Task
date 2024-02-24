@@ -1,3 +1,5 @@
+// ignore_for_file: must_call_super
+
 import 'package:flutter/material.dart';
 import 'package:task/models/items.dart';
 import 'package:task/providers/list/list_interface.dart';
@@ -44,4 +46,7 @@ class ListProvider extends ChangeNotifier implements ListInterface {
     hasProgress = v;
     notifyListeners();
   }
+
+  @override
+  void dispose() {}
 }

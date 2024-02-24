@@ -1,3 +1,5 @@
+// ignore_for_file: must_call_super
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:task/core/app_components/app_colors.dart';
@@ -49,4 +51,7 @@ class StringProvider extends ChangeNotifier implements StringInterface {
         backgroundColor: AppColors.primary,
         textColor: AppColors.white);
   }
+
+  @override
+  void dispose() {}
 }

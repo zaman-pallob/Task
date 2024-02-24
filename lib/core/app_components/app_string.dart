@@ -11,4 +11,5 @@ class AppString {
   static const title = "Title";
   static const upper = "Upper";
   static const frequency = "Frequency";
+  static const change = "Change";
 }
