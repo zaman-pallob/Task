@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:task/core/app_components/app_colors.dart';
 import 'package:task/providers/string/string_interface.dart';
 import 'package:task/providers/string/string_viewmodel.dart';
 
@@ -41,6 +43,10 @@ class StringProvider extends ChangeNotifier implements StringInterface {
 
   @override
   void onFailed(String message) {
-    print(message);
+    Fluttertoast.showToast(
+        msg: message,
+        gravity: ToastGravity.CENTER,
+        backgroundColor: AppColors.primary,
+        textColor: AppColors.white);
   }
 }
