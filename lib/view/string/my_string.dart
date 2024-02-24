@@ -37,7 +37,8 @@ class MyString extends StatelessWidget {
               SizedBox(height: 10.h),
               titleCaseWidget(),
               SizedBox(height: 10.h),
-              frequencyWidget()
+              frequencyWidget(),
+              SizedBox(height: 10.h),
             ],
           ),
         ),
