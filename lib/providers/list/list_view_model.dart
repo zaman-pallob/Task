@@ -19,6 +19,9 @@ class ListViewModel {
 
   Future addData(TodoItem item) async {
     await dao.addItemToTable(item);
+    nameController.clear();
+    ageController.clear();
+    phoneController.clear();
     interface.onDataAdd(item);
   }
 

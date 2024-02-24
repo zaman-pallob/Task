@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task/providers/list/list_provider.dart';
+import 'package:task/providers/map/map_provider.dart';
 import 'package:task/providers/string/string_provider.dart';
 import 'package:task/view/home/home_window.dart';
 import 'package:task/view/list/my_list.dart';
@@ -23,7 +24,8 @@ class CustomRouter {
             create: (context) => ListProvider(), child: MyList()));
 
       case AppRoutes.mymap:
-        return routeBuilder(MyMap());
+        return routeBuilder(ChangeNotifierProvider(
+            create: (context) => MapProvider(), child: MyMap()));
 
       case AppRoutes.mystring:
         return routeBuilder(ChangeNotifierProvider(
